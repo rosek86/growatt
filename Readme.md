@@ -15,3 +15,7 @@ Use deploy to upload all files to a RPi using ansible
 ```
 npm run deploy
 ```
+
+## References
+
+https://github.com/jkairys/growatt-esp8266
