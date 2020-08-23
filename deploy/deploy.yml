@@ -1,0 +1,53 @@
+- hosts: all
+  remote_user: pi
+  gather_facts: False
+  become_user: root
+  vars:
+    script_location: /home/pi/Documents/growatt/
+  tasks:
+    - name: Creates directory
+      file:
+        path: "{{script_location}}"
+        state: directory
+
+    - name: Upload growatt.js meta files
+      synchronize:
+        src: files/home/pi/Documents/growatt/
+        dest: "{{script_location}}"
+        owner: False
+        group: False
+
+    - name: Upload all files
+      synchronize:
+        src: files/lib/systemd/system/
+        dest: /lib/systemd/system/
+        owner: false
+        group: false
+      become: true
+
+    - name: Upload growatt.js script
+      copy:
+        src: "{{item}}"
+        dest: "{{script_location}}"
+      with_items:
+        - ../dist/growatt.js
+        - ../src/config.json
+
+    - name: Install dependencies
+      shell: npm i
+      args:
+        chdir: "{{script_location}}"
+
+    - name: Enable growatt.service
+      systemd:
+        state: started
+        enabled: yes
+        name: growatt.service
+      become: true
+
+    - name: Enable growatt.timer
+      systemd:
+        state: started
+        enabled: yes
+        name: growatt.timer
+      become: true

@@ -1,0 +1,13 @@
+{
+  "name": "growatt",
+  "version": "1.0.0",
+  "description": "Growatt data sampler (RS232)",
+  "main": "growatt.js",
+  "author": "Krzysztof Rosinski",
+  "license": "ISC",
+  "dependencies": {
+    "modbus-serial": "^8.0.1",
+    "mysql": "^2.18.1",
+    "typeorm": "^0.2.25"
+  }
+}

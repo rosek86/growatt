@@ -1,0 +1,10 @@
+[Unit]
+Description=Acquire Growatt data every 5 minutes
+Wants=growatt.timer
+
+[Service]
+ExecStart=/usr/bin/node growatt.js
+WorkingDirectory=/home/pi/Documents/growatt
+
+[Install]
+WantedBy=growatt.target
