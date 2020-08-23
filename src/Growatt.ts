@@ -157,7 +157,7 @@ export class Growatt {
     for (const [i, v] of values.entries()) {
       const d = GrowattInputRegistersDefinition[i];
 
-      if (!d || !v) {
+      if (!d || v === undefined) {
         continue;
       }
 
@@ -171,7 +171,6 @@ export class Growatt {
       }
 
       let value: number|string = v;
-      let unit: string|undefined;
 
       if (d.word === 'L') {
         value += highWord * 2**16;
@@ -179,10 +178,6 @@ export class Growatt {
 
       if (d.map) {
         value = d.map(value);
-      }
-
-      if (d.unit) {
-        unit = d.unit;
       }
 
       entries[d.name] = value;
