@@ -85,9 +85,9 @@ export const GrowattInputRegistersDefinition: GrowattWord[] = [
   { word: 'S', description: 'Grid phase 1 output voltage',  name: 'gridPhase1Voltage',      unit: 'V',      map: (v: number) => v / 10 },
   { word: 'S', description: 'Grid phase 1 output current',  name: 'gridPhase1Current',      unit: 'A',      map: (v: number) => v / 10 },
   { word: 'H' },
-  { word: 'L', description: 'grid phase 1 output power',    name: 'gridPhase1Power',        unit: 'W',      map: (v: number) => v / 10 },
-  { word: 'S', description: 'grid phase 2 output voltage',  name: 'gridPhase2Voltage',      unit: 'V',      map: (v: number) => v / 10 },
-  { word: 'S', description: 'grid phase 2 output current',  name: 'gridPhase2Current',      unit: 'A',      map: (v: number) => v / 10 },
+  { word: 'L', description: 'Grid phase 1 output power',    name: 'gridPhase1Power',        unit: 'W',      map: (v: number) => v / 10 },
+  { word: 'S', description: 'Grid phase 2 output voltage',  name: 'gridPhase2Voltage',      unit: 'V',      map: (v: number) => v / 10 },
+  { word: 'S', description: 'Grid phase 2 output current',  name: 'gridPhase2Current',      unit: 'A',      map: (v: number) => v / 10 },
   { word: 'H' },
   { word: 'L', description: 'Grid phase 2 output power',    name: 'gridPhase2Power',        unit: 'W',      map: (v: number) => v / 10 },
   { word: 'S', description: 'Grid phase 3 output voltage',  name: 'gridPhase3Voltage',      unit: 'V',      map: (v: number) => v / 10 },
@@ -147,6 +147,9 @@ export class Growatt {
         const reg = await this.client.readInputRegisters(i, 1);
         values.push(reg.data[0]);
       } catch (err) {
+        if (i === 0) {
+          throw new Error(`Cannot read status value`);
+        }
         values.push(undefined);
       }
     }
