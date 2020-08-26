@@ -1,10 +1,14 @@
 import * as fs from 'fs';
 import ModbusRTU from 'modbus-serial';
-import { Growatt } from './Growatt';
 
 import 'reflect-metadata';
 import { createConnection, Connection } from 'typeorm';
-import { GrowattSample } from './GrowattSample';
+
+import { Growatt } from './Growatt';
+import { Raspi } from './Raspi';
+
+import { GrowattSample } from './db/GrowattSample';
+import { SysMetrics } from './db/SysMetrics';
 
 interface Config {
   db: {
@@ -25,6 +29,8 @@ client.connectRTUBuffered(`/dev/ttyUSB0`, { baudRate: 9600 }, async () => {
   let connection: Connection|null = null;
 
   try {
+    const date = new Date();
+
     const config: Config = JSON.parse(fs.readFileSync('./config.json', 'utf-8'));
 
     connection = await createConnection({
@@ -35,7 +41,8 @@ client.connectRTUBuffered(`/dev/ttyUSB0`, { baudRate: 9600 }, async () => {
       password: config.db.password,
       database: config.db.database,
       entities: [
-        GrowattSample
+        GrowattSample,
+        SysMetrics
       ],
       synchronize: true,
       logging: true
@@ -45,8 +52,7 @@ client.connectRTUBuffered(`/dev/ttyUSB0`, { baudRate: 9600 }, async () => {
     const regs = await growatt.readInputRegisters();
 
     const sample = new GrowattSample();
-
-    sample.date           = new Date();
+    sample.date           = date;
     sample.status         = regs.status;
     sample.pvVoltage      = regs.pv1InputVoltage;
     sample.pvCurrent      = regs.pv1InputCurrent;
@@ -65,6 +71,12 @@ client.connectRTUBuffered(`/dev/ttyUSB0`, { baudRate: 9600 }, async () => {
     console.log(`Latest sample:`, await growattSampleRepository.findOne({
       order: { id: 'DESC' },
     }));
+
+    const sysMetrics = new SysMetrics();
+    sysMetrics.date = date;
+    sysMetrics.temperature = await Raspi.getTemperature();
+    const sysMetricsRepository = connection.getRepository(SysMetrics);
+    await sysMetricsRepository.save(sysMetrics);
   } catch (err) {
     console.error(err);
   } finally {
